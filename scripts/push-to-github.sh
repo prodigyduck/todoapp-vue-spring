@@ -1,5 +1,4 @@
 #!/bin/bash
-# GitHub 푸시 스크립트
 
 echo "🔑 GitHub Personal Access Token을 입력해주세요:"
 echo "(GitHub Settings > Developer settings > Personal access tokens에서 생성)"

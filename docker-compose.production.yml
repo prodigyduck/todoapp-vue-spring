@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: todoapp_production
+      POSTGRES_USER: todoapp_production
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY}-backend:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/todoapp_production
+      SPRING_DATASOURCE_USERNAME: todoapp_production
+      SPRING_DATASOURCE_PASSWORD: ${PROD_DB_PASSWORD}
+      JWT_SECRET: ${PROD_JWT_SECRET}
+    depends_on:
+      - postgres
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY}-frontend:latest
+    environment:
+      VITE_API_BASE_URL: https://api.yourapp.com
+    depends_on:
+      - backend
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-production.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    deploy:
+      replicas: 2
+
+volumes:
+  postgres_prod_data:

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: todoapp_staging
+      POSTGRES_USER: todoapp_staging
+      POSTGRES_PASSWORD: ${STAGING_DB_PASSWORD}
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY}-backend:staging
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/todoapp_staging
+      SPRING_DATASOURCE_USERNAME: todoapp_staging
+      SPRING_DATASOURCE_PASSWORD: ${STAGING_DB_PASSWORD}
+      JWT_SECRET: ${STAGING_JWT_SECRET}
+    depends_on:
+      - postgres
+
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY}-frontend:staging
+    environment:
+      VITE_API_BASE_URL: https://staging-api.yourapp.com
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-staging.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_staging_data:

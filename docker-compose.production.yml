@@ -32,8 +32,6 @@ services:
 
   frontend:
     image: ghcr.io/${GITHUB_REPOSITORY}-frontend:latest
-    environment:
-      VITE_API_BASE_URL: https://api.yourapp.com
     depends_on:
       - backend
     deploy:

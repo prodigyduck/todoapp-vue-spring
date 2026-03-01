@@ -1,6 +1,6 @@
 # Todo App with Vue.js 3 and Spring Boot
 
-A full-stack todo application with user authentication, built with Vue.js 3 (frontend) and Spring Boot (backend).
+A full-stack todo application with JWT authentication, built with Vue.js 3 (frontend) and Spring Boot 3.2 (backend).
 
 ## Features
 
@@ -8,6 +8,7 @@ A full-stack todo application with user authentication, built with Vue.js 3 (fro
 - Create, read, update, and delete todos
 - Mark todos as completed/incomplete
 - Secure password storage with BCrypt
+- PostgreSQL + Flyway migration support
 - Responsive design with modern UI
 
 ## Project Structure
@@ -47,7 +48,8 @@ A full-stack todo application with user authentication, built with Vue.js 3 (fro
 - Java 17 or higher
 - Maven 3.6+
 - Node.js 18+
-- npm or yarn
+- npm
+- PostgreSQL 15+ (for local backend run)
 
 ## Installation & Setup
 
@@ -63,7 +65,15 @@ cd backend
 mvn clean install
 ```
 
-3. Run the Spring Boot application:
+3. Configure local database (defaults from `application.properties`):
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/tododb
+spring.datasource.username=postgres
+spring.datasource.password=password
+```
+
+4. Run the Spring Boot application:
 ```bash
 mvn spring-boot:run
 ```
@@ -82,7 +92,19 @@ cd frontend
 npm install
 ```
 
-3. Start the development server:
+3. (Optional) override API URL with environment variable:
+
+```bash
+cp .env.example .env.local
+```
+
+Default development config is in `.env.development`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080/api
+```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
@@ -122,7 +144,9 @@ The frontend will start on `http://localhost:5173`
 - Spring Security
 - Spring Data JPA
 - JWT (jjwt)
-- H2 Database
+- PostgreSQL
+- Flyway
+- Spring Boot Actuator
 - Lombok
 
 ### Frontend
@@ -134,12 +158,14 @@ The frontend will start on `http://localhost:5173`
 
 ## Database
 
-The application uses H2 in-memory database for development. The H2 console is available at `http://localhost:8080/h2-console`
+The application uses PostgreSQL and Flyway migrations.
 
 Connection details:
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: `password`
+- JDBC URL: `jdbc:postgresql://localhost:5432/tododb`
+- Username: `postgres`
+- Password: `password` (default local value)
+
+Migrations are located in `backend/src/main/resources/db/migration`.
 
 ## Security
 
@@ -153,4 +179,5 @@ Connection details:
 - The backend runs on port 8080
 - The frontend runs on port 5173
 - JWT tokens expire after 24 hours (configurable in application.properties)
-- The database schema is auto-created by Hibernate
+- API base URL is environment-driven via `VITE_API_BASE_URL` (fallback: `/api`)
+- Health endpoint: `http://localhost:8080/actuator/health`

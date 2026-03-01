@@ -9,9 +9,9 @@ This document outlines the complete CI/CD pipeline and deployment strategy for t
 The automated pipeline includes:
 
 1. **Testing & Quality Assurance**
-   - Frontend: TypeScript compilation, ESLint, unit tests (Vitest), E2E tests (Cypress)
-   - Backend: Maven tests, Jacoco coverage, security scanning
-   - Security: Trivy vulnerability scanner
+   - Frontend: build/type-check/lint based on `frontend/package.json`
+   - Backend: Maven build and tests
+   - Optional: add Vitest/Cypress/Trivy as pipeline enhancements
 
 2. **Container Building & Registry**
    - Multi-stage Docker builds for both frontend and backend
@@ -102,6 +102,15 @@ export JWT_SECRET=your_jwt_secret
 
 ## 🔧 Environment Configuration
 
+### Frontend API URL
+
+Frontend API URL is configured at build time using `VITE_API_BASE_URL`.
+
+- Local development default: `http://localhost:8080/api` (`frontend/.env.development`)
+- Container/reverse-proxy deployments can use relative path `/api`
+
+For reference, see `frontend/.env.example`.
+
 ### Staging Environment
 - URL: https://staging.yourapp.com
 - Database: Dedicated PostgreSQL instance
@@ -117,8 +126,8 @@ export JWT_SECRET=your_jwt_secret
 
 ### Application Monitoring
 - **Health Checks**: `/actuator/health` endpoint
-- **Metrics**: Spring Boot Actuator with Micrometer
-- **Distributed Tracing**: OpenTelemetry integration
+- **Metrics**: Spring Boot Actuator (Micrometer integration can be added as needed)
+- **Distributed Tracing**: Optional (not configured by default in this repository)
 
 ### Infrastructure Monitoring
 - **CloudWatch**: Container and application metrics

@@ -1,10 +1,10 @@
-FROM openjdk:17-jdk-slim AS backend-builder
+FROM maven:3.9.9-eclipse-temurin-17 AS backend-builder
 
 WORKDIR /app
-COPY backend/pom.xml backend/
-COPY backend/src backend/src
+COPY pom.xml .
+COPY src ./src
 
-RUN ./mvnw package -DskipTests
+RUN mvn clean package -DskipTests
 
 FROM openjdk:17-jre-slim
 

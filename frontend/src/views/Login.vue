@@ -134,43 +134,6 @@
     </v-container>
   </div>
 </template>
-                    {{ error }}
-                  </v-alert>
-                </v-expand-transition>
-
-                <v-btn
-                  type="submit"
-                  color="primary"
-                  variant="elevated"
-                  block
-                  size="large"
-                  class="login-btn text-body-1 font-weight-medium"
-                  rounded="lg"
-                  elevation="2"
-                >
-                  <v-icon start icon="mdi-login" class="me-2" />
-                  Sign In
-                </v-btn>
-              </v-form>
-            </v-card-text>
-
-            <v-card-actions class="pa-8 pt-0">
-              <p class="text-body-2 text-grey-darken-1 text-center">
-                New to our platform?
-                <router-link 
-                  to="/register" 
-                  class="text-primary font-weight-medium text-decoration-none ml-1"
-                >
-                  Create an account
-                </router-link>
-              </p>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
-</template>
 
 <script setup>
 import { ref, computed } from 'vue'

@@ -23,8 +23,6 @@ services:
 
   frontend:
     image: ghcr.io/${GITHUB_REPOSITORY}-frontend:staging
-    environment:
-      VITE_API_BASE_URL: https://staging-api.yourapp.com
     depends_on:
       - backend
 

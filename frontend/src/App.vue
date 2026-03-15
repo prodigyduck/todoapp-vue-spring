@@ -10,62 +10,24 @@
 </script>
 
 <style>
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* Global styles for Zen Garden theme */
 .v-application {
-  background: #FAFAFA;
+  background: #FFFFFF;
   min-height: 100vh;
 }
 
-/* Font loading styles */
-body.fonts-loading {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-body.fonts-loading * {
-  visibility: hidden;
-}
-
 .v-main {
-  padding: 20px;
+  padding: 0;
 }
 
-/* Router transition */
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-
-/* Loading spinner and app content */
-#app {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
-#app.loading {
-  visibility: hidden;
-  opacity: 0;
-}
-
-/* Force font rendering */
-.v-text-field input,
-.v-btn,
-.v-card-title,
-body {
-  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
-}
-
-/* Ensure Inter font is loaded */
 * {
-  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #222222;
+  font-size: 14px;
+  line-height: 1.5;
 }
 </style>

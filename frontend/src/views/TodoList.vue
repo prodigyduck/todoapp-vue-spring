@@ -1,213 +1,146 @@
 <template>
-  <div class="todo-container">
-    <div class="background-shapes"></div>
-    <v-container class="pa-4">
-      <v-row justify="center">
-        <v-col cols="12" md="10" lg="8">
-          <!-- Header Card -->
-          <v-card 
-            class="mb-6 header-card" 
-            elevation="6"
-            rounded="xl"
-            variant="elevated"
-          >
-            <v-card-title class="d-flex justify-space-between align-center pa-6">
-              <div class="welcome-section">
-                <h1 class="text-h4 font-weight-light mb-1">My Tasks</h1>
-                <p class="text-subtitle-1 text-medium-emphasis">
-                  Welcome back, <span class="font-weight-medium text-primary">{{ authStore.username }}</span>
-                </p>
-              </div>
-              <v-btn 
-                color="error" 
-                variant="elevated" 
-                @click="handleLogout"
-                class="logout-btn"
-                rounded="pill"
-              >
-                <v-icon start>mdi-logout</v-icon>
-                Sign Out
-              </v-btn>
-            </v-card-title>
-          </v-card>
+  <div class="things-app">
+    <div class="things-content">
+      <!-- Page Title -->
+      <h1 class="things-page-title">Inbox</h1>
 
-          <!-- Add Todo Form -->
-          <v-card 
-            class="mb-6 add-todo-card" 
-            elevation="4"
-            rounded="lg"
-            variant="elevated"
-          >
-            <v-card-text class="pa-6">
-              <v-form @submit.prevent="handleAddTodo" class="add-todo-form">
-                <v-row align="start">
-                  <v-col cols="12" md="5">
-                    <v-text-field
-                      v-model="newTodo.title"
-                      label="What needs to be done?"
-                      placeholder="Enter task title"
-                      variant="outlined"
-                      density="comfortable"
-                      rounded="lg"
-                      bg-color="surface-variant"
-                      prepend-inner-icon="mdi-pencil-outline"
-                      required
-                      class="mb-4"
-                      color="primary"
-                      hide-details
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="newTodo.description"
-                      label="Description"
-                      placeholder="Add more details (optional)"
-                      variant="outlined"
-                      density="comfortable"
-                      rounded="lg"
-                      bg-color="surface-variant"
-                      prepend-inner-icon="mdi-text-outline"
-                      class="mb-4"
-                      color="primary"
-                      hide-details
-                    />
-                  </v-col>
-                  <v-col cols="12" md="auto" class="d-flex align-end">
-                    <v-btn
-                      type="submit"
-                      color="primary"
-                      variant="elevated"
-                      size="large"
-                      class="add-btn"
-                      rounded="pill"
-                      elevation="2"
-                    >
-                      <v-icon start icon="mdi-plus" class="me-2" />
-                      Add Task
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-form>
-            </v-card-text>
-          </v-card>
+      <!-- Task List -->
+      <div v-if="loading" class="things-empty">
+        <v-progress-circular indeterminate color="#2e80f2" size="24" width="2" />
+      </div>
 
-          <!-- Loading State -->
-          <v-card 
-            v-if="loading" 
-            class="mb-6 loading-card" 
-            elevation="3"
-            rounded="lg"
+      <div v-else class="things-list">
+        <!-- Task Items -->
+        <div
+          v-for="todo in todos"
+          :key="todo.id"
+          class="things-task"
+          :class="{ 'things-task--completed': todo.completed, 'things-task--editing': editingId === todo.id }"
+        >
+          <!-- Checkbox -->
+          <div
+            class="things-checkbox"
+            :class="{ 'things-checkbox--checked': todo.completed, 'things-checkbox--toggling': togglingIds.has && togglingIds.has(todo.id) }"
+            @click="handleToggleTodo(todo.id)"
           >
-            <v-card-text class="text-center py-8">
-              <div class="loading-animation">
-                <v-progress-circular 
-                  indeterminate 
-                  color="primary" 
-                  size="48" 
-                  width="4"
-                  class="mb-4"
-                />
-                <p class="text-body-1 text-medium-emphasis">Loading your tasks...</p>
-              </div>
-            </v-card-text>
-          </v-card>
-
-          <!-- Empty State -->
-          <v-card 
-            v-else-if="todos.length === 0" 
-            class="mb-6 empty-state-card" 
-            elevation="2"
-            rounded="lg"
-          >
-            <v-card-text class="text-center py-10">
-              <div class="empty-state-animation">
-                <v-icon 
-                  icon="mdi-clipboard-text-outline" 
-                  size="64" 
-                  color="medium-emphasis"
-                  class="mb-4 float-icon"
-                />
-                <h3 class="text-h6 font-weight-light mb-2">No tasks yet</h3>
-                <p class="text-body-2 text-medium-emphasis">
-                  Create your first task to get started!
-                </p>
-              </div>
-            </v-card-text>
-          </v-card>
-
-          <!-- Todo List -->
-          <div v-else class="todo-list-container">
-            <v-card 
-              v-for="todo in todos" 
-              :key="todo.id"
-              class="mb-4 todo-item-card" 
-              :elevation="2"
-              rounded="lg"
-              :class="{ 'completed-todo': todo.completed }"
-            >
-              <v-card-text class="pa-4">
-                <div class="d-flex align-center">
-                  <div class="checkbox-section me-4">
-                    <v-checkbox
-                      :model-value="todo.completed"
-                      @update:model-value="handleToggleTodo(todo.id)"
-                      color="primary"
-                      density="comfortable"
-                      hide-details
-                      class="todo-checkbox"
-                    />
-                  </div>
-                  <div class="todo-content flex-grow-1">
-                    <h3 
-                      class="text-h6 font-weight-regular mb-1" 
-                      :class="{ 'completed-title': todo.completed }"
-                    >
-                      {{ todo.title }}
-                    </h3>
-                    <p 
-                      v-if="todo.description" 
-                      class="text-body-2 text-medium-emphasis mb-3"
-                      :class="{ 'completed-description': todo.completed }"
-                    >
-                      {{ todo.description }}
-                    </p>
-                    <div class="todo-actions">
-                      <v-btn
-                        icon="mdi-delete-outline"
-                        color="error"
-                        variant="outlined"
-                        size="small"
-                        @click="handleDeleteTodo(todo.id)"
-                        class="delete-btn"
-                        rounded="pill"
-                      >
-                        <v-icon>mdi-delete-outline</v-icon>
-                      </v-btn>
-                    </div>
-                  </div>
-                </div>
-              </v-card-text>
-            </v-card>
+            <svg v-if="todo.completed" viewBox="0 0 14 14" class="things-checkmark">
+              <path d="M2.5 7.5L5.5 10.5L11.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            </svg>
           </div>
-        </v-col>
-      </v-row>
-    </v-container>
+
+          <!-- Content -->
+          <div class="things-task-content">
+            <template v-if="editingId === todo.id">
+              <input
+                v-model="editTodo.title"
+                class="things-edit-input things-edit-title"
+                placeholder="Title"
+                @keydown.enter="handleEditSave(todo.id)"
+                @keydown.escape="handleEditCancel"
+              />
+              <input
+                v-model="editTodo.description"
+                class="things-edit-input things-edit-desc"
+                placeholder="Notes"
+                @keydown.enter="handleEditSave(todo.id)"
+                @keydown.escape="handleEditCancel"
+              />
+              <div class="things-edit-actions">
+                <button
+                  class="things-btn things-btn--primary"
+                  :disabled="savingId === todo.id"
+                  @click="handleEditSave(todo.id)"
+                >
+                  {{ savingId === todo.id ? 'Saving...' : 'Save' }}
+                </button>
+                <button class="things-btn things-btn--ghost" @click="handleEditCancel">
+                  Cancel
+                </button>
+              </div>
+            </template>
+            <template v-else>
+              <span class="things-task-title">{{ todo.title }}</span>
+              <span v-if="todo.description" class="things-task-notes">{{ todo.description }}</span>
+            </template>
+          </div>
+
+          <!-- Hover Actions -->
+          <div v-if="editingId !== todo.id" class="things-task-actions">
+            <button class="things-action-btn" title="Edit" @click="handleEditStart(todo)">
+              <v-icon size="16">mdi-pencil-outline</v-icon>
+            </button>
+            <button class="things-action-btn things-action-btn--delete" title="Delete" @click="handleDeleteTodo(todo.id)">
+              <v-icon size="16">mdi-delete-outline</v-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-if="!loading && todos.length === 0" class="things-empty">
+          <span class="things-empty-text">No To-Dos</span>
+        </div>
+
+        <!-- New To-Do Button -->
+        <div class="things-new-todo" @click="showAddForm = !showAddForm" v-if="!showAddForm">
+          <v-icon size="18" color="#2e80f2" class="things-new-todo-icon">mdi-plus</v-icon>
+          <span class="things-new-todo-text">New To-Do</span>
+        </div>
+
+        <!-- Inline Add Form -->
+        <div v-if="showAddForm" class="things-add-form">
+          <div class="things-checkbox things-checkbox--placeholder"></div>
+          <div class="things-add-form-content">
+            <form @submit.prevent="handleAddTodo">
+              <input
+                v-model="newTodo.title"
+                class="things-edit-input things-edit-title"
+                placeholder="New To-Do"
+                ref="newTodoInput"
+                @keydown.escape="showAddForm = false"
+              />
+              <input
+                v-model="newTodo.description"
+                class="things-edit-input things-edit-desc"
+                placeholder="Notes"
+                @keydown.escape="showAddForm = false"
+              />
+              <div class="things-edit-actions">
+                <button type="submit" class="things-btn things-btn--primary">Save</button>
+                <button type="button" class="things-btn things-btn--ghost" @click="showAddForm = false">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { todoService } from '@/services/todoService'
-
-const router = useRouter()
-const authStore = useAuthStore()
 
 const todos = ref([])
 const newTodo = ref({ title: '', description: '' })
 const loading = ref(false)
 const error = ref('')
+const showAddForm = ref(false)
+const newTodoInput = ref(null)
+
+// Edit state
+const editingId = ref(null)
+const editTodo = ref({ title: '', description: '' })
+// Track loading states
+const savingId = ref(null)
+const togglingIds = ref(new Set())
+
+// Auto-focus new todo input when form appears
+watch(showAddForm, async (val) => {
+  if (val) {
+    await nextTick()
+    newTodoInput.value?.focus()
+  }
+})
 
 const loadTodos = async () => {
   loading.value = true
@@ -228,20 +161,33 @@ const handleAddTodo = async () => {
     const createdTodo = await todoService.create(newTodo.value)
     todos.value.unshift(createdTodo)
     newTodo.value = { title: '', description: '' }
+    showAddForm.value = false
   } catch (err) {
     error.value = 'Failed to create todo'
   }
 }
 
 const handleToggleTodo = async (id) => {
+  // Optimistic toggle: flip locally first
+  const index = todos.value.findIndex((t) => t.id === id)
+  if (index === -1) return
+
+  const original = { ...todos.value[index] }
+  todos.value[index].completed = !todos.value[index].completed
+  togglingIds.value.add(id)
+
   try {
     const updatedTodo = await todoService.toggle(id)
-    const index = todos.value.findIndex((t) => t.id === id)
-    if (index !== -1) {
+    // Sync with server response when available
+    if (updatedTodo) {
       todos.value[index] = updatedTodo
     }
   } catch (err) {
+    // revert on failure
+    todos.value[index] = original
     error.value = 'Failed to update todo'
+  } finally {
+    togglingIds.value.delete(id)
   }
 }
 
@@ -254,9 +200,33 @@ const handleDeleteTodo = async (id) => {
   }
 }
 
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/login')
+// Edit handlers
+const handleEditStart = (todo) => {
+  editingId.value = todo.id
+  editTodo.value = { title: todo.title || '', description: todo.description || '' }
+}
+
+const handleEditCancel = () => {
+  editingId.value = null
+  editTodo.value = { title: '', description: '' }
+}
+
+const handleEditSave = async (id) => {
+  if (!editTodo.value.title.trim()) return
+  savingId.value = id
+  try {
+    const updated = await todoService.update(id, editTodo.value)
+    const index = todos.value.findIndex((t) => t.id === id)
+    if (index !== -1) {
+      todos.value[index] = updated
+    }
+    editingId.value = null
+    editTodo.value = { title: '', description: '' }
+  } catch (err) {
+    error.value = 'Failed to save todo'
+  } finally {
+    savingId.value = null
+  }
 }
 
 onMounted(() => {
@@ -265,274 +235,333 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.todo-container {
+.things-app {
   min-height: 100vh;
-  background: #FAFAFA;
-  position: relative;
-  overflow-x: hidden;
-}
-
-.background-shapes {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  opacity: 0.03;
-  background-image: 
-    radial-gradient(circle at 20% 30%, #2196F3 0%, transparent 2px),
-    radial-gradient(circle at 80% 70%, #4CAF50 0%, transparent 2px),
-    radial-gradient(circle at 40% 80%, #FF9800 0%, transparent 1px);
-  background-size: 300px 300px, 200px 200px, 150px 150px;
-  background-position: 10% 10%, 90% 20%, 30% 80%;
-  background-repeat: no-repeat;
-  animation: slow-float 30s ease-in-out infinite;
-}
-
-.header-card {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(33, 150, 243, 0.1);
-  transition: all 0.3s ease;
-}
-
-.welcome-section h1 {
-  color: #212121;
-  letter-spacing: -0.5px;
-}
-
-.add-todo-card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(33, 150, 243, 0.1);
-}
-
-.add-todo-form {
-  animation: slide-up 0.5s ease-out;
-}
-
-.add-btn {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.25px;
-  font-weight: 500;
-}
-
-.add-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.25);
-}
-
-.loading-card {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(33, 150, 243, 0.1);
-}
-
-.loading-animation {
+  background: #ffffff;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
 }
 
-.empty-state-card {
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px dashed rgba(33, 150, 243, 0.2);
-  transition: all 0.3s ease;
+.things-content {
+  width: 100%;
+  max-width: 680px;
+  padding: 60px 24px 120px;
 }
 
-.empty-state-card:hover {
-  border-color: rgba(33, 150, 243, 0.4);
-  transform: translateY(-2px);
+/* Page Title */
+.things-page-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0 0 24px 0;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
 }
 
-.empty-state-animation {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.float-icon {
-  animation: gentle-float 3s ease-in-out infinite;
-}
-
-.todo-list-container {
-  animation: fade-in 0.6s ease-out;
-}
-
-.todo-item-card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Task List */
+.things-list {
   position: relative;
-  overflow: hidden;
 }
 
-.todo-item-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #2196F3, #4CAF50);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.todo-item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-  border-color: rgba(33, 150, 243, 0.2);
-}
-
-.todo-item-card:hover::before {
-  transform: scaleX(1);
-}
-
-.checkbox-section {
+/* Task Item */
+.things-task {
   display: flex;
   align-items: flex-start;
-  padding-top: 8px;
+  padding: 10px 8px 10px 0;
+  border-bottom: 1px solid #ebedf0;
+  position: relative;
+  transition: background-color 0.15s ease;
+  border-radius: 6px;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
-.todo-checkbox {
-  transform: scale(1.1);
+.things-task:first-child {
+  border-top: 1px solid #ebedf0;
 }
 
-.todo-content h3 {
-  color: #212121;
-  transition: all 0.3s ease;
+.things-task:hover {
+  background-color: #f7f7f8;
+}
+
+.things-task--completed {
+  opacity: 0.55;
+}
+
+.things-task--editing {
+  background-color: #ffffff;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border-color: transparent;
+  padding: 14px 16px;
+  margin: 4px -8px;
+  z-index: 1;
+}
+
+/* Checkbox */
+.things-checkbox {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 1.8px solid #c8cacd;
+  border-radius: 50%;
+  margin-top: 1px;
+  margin-right: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.things-checkbox:hover {
+  border-color: #2e80f2;
+}
+
+.things-checkbox--checked {
+  border-color: #c8cacd;
+  background-color: #f0f0f0;
+}
+
+.things-checkbox--checked .things-checkmark {
+  color: #a0a5ab;
+}
+
+.things-checkbox--toggling {
+  opacity: 0.5;
+}
+
+.things-checkbox--placeholder {
+  border-color: #e0e0e2;
+  cursor: default;
+}
+
+.things-checkmark {
+  width: 12px;
+  height: 12px;
+}
+
+/* Task Content */
+.things-task-content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.things-task-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  color: #222222;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.things-task--completed .things-task-title {
+  color: #c8cacd;
+  text-decoration: line-through;
+}
+
+.things-task-notes {
+  display: block;
+  font-size: 13px;
+  color: #8a8a8e;
+  line-height: 1.4;
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.things-task--completed .things-task-notes {
+  color: #d0d0d3;
+  text-decoration: line-through;
+}
+
+/* Hover Actions */
+.things-task-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  margin-left: 8px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.things-task:hover .things-task-actions {
+  opacity: 1;
+}
+
+.things-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #b0b0b4;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  padding: 0;
+}
+
+.things-action-btn:hover {
+  color: #666666;
+  background-color: #ebedf0;
+}
+
+.things-action-btn--delete:hover {
+  color: #ff3b30;
+  background-color: rgba(255, 59, 48, 0.08);
+}
+
+/* Edit Mode Inputs */
+.things-edit-input {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: 0;
+  margin: 0;
+}
+
+.things-edit-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #222222;
+}
+
+.things-edit-title::placeholder {
+  color: #c8cacd;
+  font-weight: 400;
+}
+
+.things-edit-desc {
+  font-size: 13px;
+  color: #5c6470;
+  margin-top: 4px;
+}
+
+.things-edit-desc::placeholder {
+  color: #c8cacd;
+}
+
+.things-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Buttons */
+.things-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
   line-height: 1.4;
 }
 
-.completed-title {
-  color: #757575;
-  text-decoration: line-through;
-  opacity: 0.7;
+.things-btn--primary {
+  background-color: #2e80f2;
+  color: #ffffff;
 }
 
-.todo-content p {
-  line-height: 1.5;
+.things-btn--primary:hover {
+  background-color: #1a6cdf;
 }
 
-.completed-description {
-  color: #757575;
+.things-btn--primary:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.todo-actions {
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.things-btn--ghost {
+  background: transparent;
+  color: #8a8a8e;
 }
 
-.todo-item-card:hover .todo-actions {
-  opacity: 1;
+.things-btn--ghost:hover {
+  background-color: #f0f0f0;
+  color: #555555;
 }
 
-.delete-btn {
-  transition: all 0.3s ease;
+/* New To-Do Button */
+.things-new-todo {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  user-select: none;
 }
 
-.delete-btn:hover {
-  background: rgba(244, 67, 54, 0.1);
-  transform: scale(1.05);
-}
-
-.completed-todo {
+.things-new-todo:hover {
   opacity: 0.7;
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(0, 0, 0, 0.05);
 }
 
-.logout-btn {
-  transition: all 0.3s ease;
-  letter-spacing: 0.25px;
+.things-new-todo-icon {
+  margin-right: 8px;
 }
 
-.logout-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.25);
+.things-new-todo-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #2e80f2;
 }
 
-@keyframes slow-float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-10px) rotate(1deg);
-  }
-  66% {
-    transform: translateY(5px) rotate(-1deg);
-  }
+/* Inline Add Form */
+.things-add-form {
+  display: flex;
+  align-items: flex-start;
+  padding: 14px 16px;
+  margin: 4px -8px;
+  background: #ffffff;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  position: relative;
+  z-index: 1;
 }
 
-@keyframes gentle-float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
+.things-add-form-content {
+  flex: 1;
+  min-width: 0;
 }
 
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Empty State */
+.things-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.things-empty-text {
+  font-size: 15px;
+  color: #b0b0b4;
+  font-weight: 400;
 }
 
-/* Responsive adjustments */
-@media (max-width: 960px) {
-  .add-todo-form .v-row {
-    flex-direction: column;
+/* Responsive */
+@media (max-width: 720px) {
+  .things-content {
+    padding: 32px 16px 100px;
   }
-  
-  .add-todo-form .v-col {
-    width: 100% !important;
-    margin-bottom: 16px;
-  }
-  
-  .add-btn {
-    width: 100%;
-  }
-}
 
-@media (max-width: 600px) {
-  .header-card,
-  .add-todo-card,
-  .loading-card,
-  .empty-state-card,
-  .todo-item-card {
-    margin: 8px;
-    border-radius: 12px;
+  .things-page-title {
+    font-size: 22px;
   }
-  
-  .todo-content {
-    font-size: 14px;
-  }
-}
-
-:deep(.v-field__input) {
-  color: #212121 !important;
-}
-
-:deep(.v-field__input::placeholder) {
-  color: #757575 !important;
-  opacity: 1;
 }
 </style>

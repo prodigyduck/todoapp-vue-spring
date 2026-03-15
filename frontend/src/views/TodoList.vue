@@ -76,7 +76,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import todoService from '@/services/todoService'
+import { todoService } from '@/services/todoService'
 
 // State
 const todos = ref([])

@@ -6,6 +6,8 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
+    "test": "vitest --environment jsdom",
+    "test:run": "vitest run --environment jsdom",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint src --ext .js,.vue --fix",
     "lint:fix": "eslint src --ext .js,.vue --fix",
@@ -15,15 +17,18 @@
     "@mdi/font": "^7.4.47",
     "axios": "^1.6.2",
     "inter": "^2.1.0",
-    "pinia": "^2.1.7",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "vuetify": "^4.0.0-alpha.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@vitejs/plugin-vue": "^4.4.0",
+    "@vue/test-utils": "^2.4.0-alpha.2",
+    "jsdom": "^22.1.0",
     "typescript": "^5.6.3",
     "vite": "^5.0.0",
+    "vitest": "^1.6.1",
     "vue-tsc": "^2.1.10"
   }
 }

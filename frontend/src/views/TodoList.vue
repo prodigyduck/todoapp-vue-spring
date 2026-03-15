@@ -23,7 +23,7 @@
           </template>
           <v-list-item-title>My Day</v-list-item-title>
           <template v-slot:append v-if="counts.myDay">
-            <v-chip size="x-small" color="grey-lighten-3">{{ counts.myDay }}</v-chip>
+            <v-chip size="x-small" color="blue-lighten-5" class="sidebar-badge">{{ counts.myDay }}</v-chip>
           </template>
         </v-list-item>
 
@@ -38,7 +38,7 @@
           </template>
           <v-list-item-title>Important</v-list-item-title>
           <template v-slot:append v-if="counts.important">
-            <v-chip size="x-small" color="grey-lighten-3">{{ counts.important }}</v-chip>
+            <v-chip size="x-small" color="amber-lighten-5" class="sidebar-badge">{{ counts.important }}</v-chip>
           </template>
         </v-list-item>
 
@@ -53,7 +53,7 @@
           </template>
           <v-list-item-title>Tasks</v-list-item-title>
           <template v-slot:append v-if="counts.all">
-            <v-chip size="x-small" color="grey-lighten-3">{{ counts.all }}</v-chip>
+            <v-chip size="x-small" color="grey-lighten-4" class="sidebar-badge">{{ counts.all }}</v-chip>
           </template>
         </v-list-item>
       </v-list>
@@ -74,6 +74,7 @@
               density="comfortable"
               hide-details
               clearable
+              class="search-input"
               @input="onSearch"
             />
           </v-col>
@@ -81,6 +82,7 @@
             <v-btn
               color="primary"
               size="large"
+              variant="outlined"
               block
               prepend-icon="mdi-plus"
               @click="focusNew"
@@ -102,7 +104,7 @@
             variant="outlined"
             density="comfortable"
             hide-details
-            class="mb-4"
+            class="mb-4 new-input"
             @keyup.enter="createTodo"
           />
         </v-slide-y-transition>
@@ -475,28 +477,32 @@ onBeforeUnmount(() => {
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(25, 90, 189, 0.25);
+  border-radius: 8px;
+  color: #1976D2;
   transition: all 0.2s ease;
 }
 
 .add-btn:hover {
-  box-shadow: 0 4px 12px rgba(25, 90, 189, 0.35);
-  transform: translateY(-1px);
+  background-color: rgba(25, 118, 210, 0.08);
+  color: #115293;
 }
 
 .task-item {
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   border: 1px solid transparent;
+  border-radius: 8px;
 }
 
 .task-item:hover {
   background-color: rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(25, 90, 189, 0.08);
+  transform: translateY(-1px);
 }
 
 .task-item.focused {
   background-color: rgba(25, 90, 189, 0.08);
-  border-color: rgba(25, 90, 189, 0.2);
+  border-color: rgba(25, 90, 189, 0.3);
+  box-shadow: 0 4px 16px rgba(25, 90, 189, 0.15);
 }
 
 .detail-panel {
@@ -537,5 +543,29 @@ onBeforeUnmount(() => {
 
 :deep(.v-text-field:hover .v-field__outline) {
   --v-field-border-opacity: 0.4;
+}
+
+/* Input elevation styles */
+.search-input,
+.new-input {
+  transition: all 0.2s ease;
+}
+
+:deep(.search-input.v-text-field--focused .v-field),
+:deep(.new-input.v-text-field--focused .v-field) {
+  box-shadow: 0 4px 12px rgba(25, 90, 189, 0.15);
+  border-radius: 8px;
+}
+
+:deep(.search-input:hover .v-field),
+:deep(.new-input:hover .v-field) {
+  box-shadow: 0 2px 6px rgba(25, 90, 189, 0.08);
+}
+
+/* Sidebar badge improvements */
+.sidebar-badge {
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 </style>

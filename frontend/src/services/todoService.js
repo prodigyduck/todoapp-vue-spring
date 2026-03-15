@@ -1,9 +1,13 @@
 import api from './api'
 
 export const todoService = {
-  async getAll() {
+  async getTodos() {
     const response = await api.get('/todos')
     return response.data
+  },
+
+  async getAll() {
+    return this.getTodos()
   },
 
   async getMyDay() {
@@ -34,6 +38,10 @@ export const todoService = {
   async toggle(id) {
     const response = await api.patch(`/todos/${id}/toggle`)
     return response.data
+  },
+
+  async toggleCompleted(id) {
+    return this.toggle(id)
   },
 
   async toggleImportant(id) {

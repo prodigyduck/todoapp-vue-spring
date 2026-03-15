@@ -24,8 +24,4 @@ public class Todo {
     @Column(nullable = false)
     private Boolean completed = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
 }

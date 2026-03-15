@@ -23,6 +23,24 @@ public class TodoController {
         return ResponseEntity.ok(todos);
     }
 
+    @GetMapping("/myday")
+    public ResponseEntity<List<TodoResponse>> getMyDayTodos() {
+        List<TodoResponse> todos = todoService.getMyDayTodos();
+        return ResponseEntity.ok(todos);
+    }
+
+    @GetMapping("/important")
+    public ResponseEntity<List<TodoResponse>> getImportantTodos() {
+        List<TodoResponse> todos = todoService.getImportantTodos();
+        return ResponseEntity.ok(todos);
+    }
+
+    @GetMapping("/list/{listName}")
+    public ResponseEntity<List<TodoResponse>> getTodosByListName(@PathVariable String listName) {
+        List<TodoResponse> todos = todoService.getTodosByListName(listName);
+        return ResponseEntity.ok(todos);
+    }
+
     @PostMapping
     public ResponseEntity<TodoResponse> createTodo(@RequestBody TodoRequest request) {
         TodoResponse todo = todoService.createTodo(request);
@@ -38,6 +56,18 @@ public class TodoController {
     @PatchMapping("/{id}/toggle")
     public ResponseEntity<TodoResponse> toggleTodo(@PathVariable Long id) {
         TodoResponse todo = todoService.toggleTodo(id);
+        return ResponseEntity.ok(todo);
+    }
+
+    @PatchMapping("/{id}/important")
+    public ResponseEntity<TodoResponse> toggleImportant(@PathVariable Long id) {
+        TodoResponse todo = todoService.toggleImportant(id);
+        return ResponseEntity.ok(todo);
+    }
+
+    @PatchMapping("/{id}/myday")
+    public ResponseEntity<TodoResponse> toggleMyDay(@PathVariable Long id) {
+        TodoResponse todo = todoService.toggleMyDay(id);
         return ResponseEntity.ok(todo);
     }
 

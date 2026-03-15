@@ -1,8 +1,6 @@
 <template>
-  <v-app theme="myCustomLightTheme">
-    <v-main>
-      <router-view />
-    </v-main>
+  <v-app theme="msToDoTheme">
+    <router-view />
   </v-app>
 </template>
 
@@ -15,19 +13,16 @@
   min-height: 100vh;
 }
 
-.v-main {
-  padding: 0;
-}
-
 * {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
 
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #222222;
+  color: #242424;
   font-size: 14px;
   line-height: 1.5;
+  margin: 0;
 }
 </style>

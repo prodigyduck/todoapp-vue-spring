@@ -10,4 +10,7 @@ import lombok.NoArgsConstructor;
 public class TodoRequest {
     private String title;
     private String description;
+    private Boolean important;
+    private Boolean myDay;
+    private String listName;
 }

@@ -8,29 +8,23 @@ import '@mdi/font/css/materialdesignicons.css'
 import App from './App.vue'
 import router from './router'
 
-// Things 3-inspired Theme
-const myCustomLightTheme = {
+// Microsoft To Do-inspired Theme
+const msToDoTheme = {
   dark: false,
   colors: {
     background: '#FFFFFF',
     surface: '#FFFFFF',
-    primary: '#2e80f2',
-    'primary-darken-1': '#1a6cdf',
-    secondary: '#5c6470',
-    'secondary-lighten-1': '#8a8a8e',
-    error: '#FF3B30',
-    info: '#2e80f2',
-    success: '#4cbe5e',
-    warning: '#f1ca00',
-    'surface-variant': '#f6f7f8',
-    'medium-emphasis': '#8a8a8e',
+    primary: '#195ABD',
+    'primary-darken-1': '#0F4A9C',
+    secondary: '#605E5C',
+    'secondary-lighten-1': '#8A8886',
+    error: '#D13438',
+    info: '#0078D4',
+    success: '#107C10',
+    warning: '#FFB900',
+    'surface-variant': '#F4F4F4',
+    'on-surface-variant': '#242424',
   },
-  variables: {
-    'border-radius-root': '6px',
-    'border-radius-lg': '8px',
-    'border-radius-xl': '10px',
-    'border-radius-pill': '20px',
-  }
 }
 
 const vuetify = createVuetify({
@@ -44,16 +38,18 @@ const vuetify = createVuetify({
     },
   },
   theme: {
-    defaultTheme: 'myCustomLightTheme',
+    defaultTheme: 'msToDoTheme',
     themes: {
-      myCustomLightTheme,
+      msToDoTheme,
     }
   },
   defaults: {
     VBtn: {
       variant: 'text',
       density: 'comfortable',
-      rounded: 'lg',
+    },
+    VList: {
+      density: 'compact',
     },
   },
 })

@@ -12,4 +12,7 @@ public class TodoResponse {
     private String title;
     private String description;
     private Boolean completed;
+    private Boolean important;
+    private Boolean myDay;
+    private String listName;
 }

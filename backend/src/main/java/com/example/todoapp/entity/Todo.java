@@ -24,4 +24,13 @@ public class Todo {
     @Column(nullable = false)
     private Boolean completed = false;
 
+    @Column(nullable = false)
+    private Boolean important = false;
+
+    @Column(nullable = false)
+    private Boolean myDay = false;
+
+    @Column(name = "list_name")
+    private String listName;
+
 }

@@ -1,183 +1,187 @@
-# Todo App with Vue.js 3 and Spring Boot
+# Todo App
 
-A full-stack todo application with JWT authentication, built with Vue.js 3 (frontend) and Spring Boot 3.2 (backend).
+A clean, minimal todo application inspired by [Things 3](https://culturedcode.com/things/) by Cultured Code. Built with Vue.js 3 and Spring Boot 3.2.
 
 ## Features
 
-- User registration and login with JWT authentication
-- Create, read, update, and delete todos
-- Mark todos as completed/incomplete
-- Secure password storage with BCrypt
-- PostgreSQL + Flyway migration support
-- Responsive design with modern UI
+- Create, edit, and delete todos with title and notes
+- Toggle completion status with custom circle checkboxes
+- Things 3-inspired UI: flat list, inline editing, minimal design
+- Optimistic UI updates for instant feedback
+- Responsive layout
+
+## Screenshots
+
+The UI follows Things 3 design language:
+- "Inbox" page title (26px, weight 600)
+- Flat task list separated by thin dividers (no cards)
+- Custom CSS circle checkboxes with checkmark SVG
+- "+ New To-Do" blue text button with inline add form
+- Inline borderless edit mode with subtle shadow elevation
+- Hover-reveal edit/delete actions
+- Completed tasks shown with strikethrough and reduced opacity
+
+## Tech Stack
+
+### Frontend
+- **Vue.js 3** with Composition API (`<script setup>`)
+- **Vuetify 4** (alpha) for icons and base components
+- **Vue Router 4** for routing
+- **Axios** for HTTP requests
+- **Vite 5** for build tooling
+
+### Backend
+- **Spring Boot 3.2.0** with Java 17
+- **Spring Data JPA** for data access
+- **H2 Database** (in-memory) for storage
+- **Spring Security** (configured to permit all requests)
+- **Lombok** for boilerplate reduction
+- **Spring Boot Actuator** for health monitoring
 
 ## Project Structure
 
 ```
-.
-├── backend/                 # Spring Boot backend
+todoapp-vue-spring/
+├── frontend/
 │   ├── src/
-│   │   └── main/
-│   │       ├── java/com/example/todoapp/
-│   │       │   ├── controller/     # REST controllers
-│   │       │   ├── service/        # Business logic
-│   │       │   ├── repository/     # Data access layer
-│   │       │   ├── entity/         # JPA entities
-│   │       │   ├── security/       # JWT and security config
-│   │       │   ├── config/          # Spring configuration
-│   │       │   └── dto/            # Data transfer objects
-│   │       └── resources/
-│   │           └── application.properties
+│   │   ├── views/
+│   │   │   └── TodoList.vue      # Main todo list (Things 3 UI)
+│   │   ├── services/
+│   │   │   ├── api.js            # Axios instance
+│   │   │   └── todoService.js    # Todo API client
+│   │   ├── router/
+│   │   │   └── index.js          # Routes (/ → TodoList)
+│   │   ├── App.vue               # Root component
+│   │   └── main.js               # Vuetify setup + theme
+│   ├── package.json
+│   └── vite.config.js
+├── backend/
+│   ├── src/main/java/com/example/todoapp/
+│   │   ├── controller/
+│   │   │   └── TodoController.java
+│   │   ├── service/
+│   │   │   └── TodoService.java
+│   │   ├── repository/
+│   │   │   └── TodoRepository.java
+│   │   ├── entity/
+│   │   │   └── Todo.java
+│   │   ├── dto/
+│   │   │   ├── TodoRequest.java
+│   │   │   └── TodoResponse.java
+│   │   └── config/
+│   │       └── SecurityConfig.java
+│   ├── src/main/resources/
+│   │   └── application.properties
 │   └── pom.xml
-└── frontend/                # Vue.js 3 frontend
-    ├── src/
-    │   ├── components/      # Vue components
-    │   ├── views/           # Page components
-    │   ├── services/        # API services
-    │   ├── stores/          # Pinia state management
-    │   ├── router/          # Vue Router
-    │   ├── App.vue
-    │   └── main.js
-    ├── index.html
-    ├── vite.config.js
-    └── package.json
+└── README.md
 ```
 
 ## Prerequisites
 
-- Java 17 or higher
+- Java 17+
 - Maven 3.6+
 - Node.js 18+
 - npm
-- PostgreSQL 15+ (for local backend run)
 
-## Installation & Setup
+No external database required — uses H2 in-memory database.
 
-### Backend Setup
+## Getting Started
 
-1. Navigate to the backend directory:
+### 1. Start the Backend
+
 ```bash
 cd backend
-```
-
-2. Build the project:
-```bash
-mvn clean install
-```
-
-3. Configure local database (defaults from `application.properties`):
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/tododb
-spring.datasource.username=postgres
-spring.datasource.password=password
-```
-
-4. Run the Spring Boot application:
-```bash
 mvn spring-boot:run
 ```
 
-The backend will start on `http://localhost:8080`
+The API starts at `http://localhost:8080`.
 
-### Frontend Setup
+### 2. Start the Frontend
 
-1. Navigate to the frontend directory:
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. (Optional) override API URL with environment variable:
-
-```bash
-cp .env.example .env.local
-```
-
-Default development config is in `.env.development`:
-
-```env
-VITE_API_BASE_URL=http://localhost:8080/api
-```
-
-4. Start the development server:
-```bash
 npm run dev
 ```
 
-The frontend will start on `http://localhost:5173`
+The app opens at `http://localhost:5173`.
 
-## Usage
+### 3. Use the App
 
-1. Open your browser and navigate to `http://localhost:5173`
-2. Register a new account using the Register page
-3. Login with your credentials
-4. Add, complete, and delete todos as needed
+1. Open `http://localhost:5173` in your browser
+2. Click "+ New To-Do" to add a task
+3. Fill in a title and optional notes, then click Save
+4. Click the circle checkbox to mark a task as completed
+5. Hover over a task to reveal Edit and Delete buttons
 
 ## API Endpoints
 
-### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/todos` | List all todos |
+| `POST` | `/api/todos` | Create a todo |
+| `PUT` | `/api/todos/{id}` | Update a todo |
+| `PATCH` | `/api/todos/{id}/toggle` | Toggle completion |
+| `DELETE` | `/api/todos/{id}` | Delete a todo |
 
-- `POST /api/auth/register` - Register a new user
-  - Body: `{ "username": "string", "password": "string" }`
-- `POST /api/auth/login` - Login and get JWT token
-  - Body: `{ "username": "string", "password": "string" }`
+### Request Body (POST/PUT)
 
-### Todos
+```json
+{
+  "title": "string",
+  "description": "string"
+}
+```
 
-- `GET /api/todos` - Get all todos for authenticated user
-- `POST /api/todos` - Create a new todo
-  - Body: `{ "title": "string", "description": "string" }`
-- `PUT /api/todos/{id}` - Update a todo
-  - Body: `{ "title": "string", "description": "string" }`
-- `PATCH /api/todos/{id}/toggle` - Toggle todo completion status
-- `DELETE /api/todos/{id}` - Delete a todo
+### Response
 
-## Technology Stack
+```json
+{
+  "id": 1,
+  "title": "Buy groceries",
+  "description": "Milk, eggs, bread",
+  "completed": false
+}
+```
 
-### Backend
-- Spring Boot 3.2.0
-- Spring Security
-- Spring Data JPA
-- JWT (jjwt)
-- PostgreSQL
-- Flyway
-- Spring Boot Actuator
-- Lombok
+## Development
 
-### Frontend
-- Vue.js 3
-- Vue Router
-- Pinia (state management)
-- Axios (HTTP client)
-- Vite (build tool)
+### Frontend Build
 
-## Database
+```bash
+cd frontend
+npm run build        # Type-check + production build
+npm run type-check   # TypeScript check only
+npm run lint         # ESLint
+```
 
-The application uses PostgreSQL and Flyway migrations.
+### Backend Build
 
-Connection details:
-- JDBC URL: `jdbc:postgresql://localhost:5432/tododb`
-- Username: `postgres`
-- Password: `password` (default local value)
+```bash
+cd backend
+mvn clean install    # Build + run tests
+mvn test             # Run tests only
+```
 
-Migrations are located in `backend/src/main/resources/db/migration`.
+### Health Check
 
-## Security
+```
+GET http://localhost:8080/actuator/health
+```
 
-- Passwords are encrypted using BCrypt
-- JWT tokens are used for authentication
-- CORS is configured for the frontend origin
-- All todo endpoints require authentication
+## Design Notes
 
-## Development Notes
+The UI is intentionally minimal, drawing from Things 3's design philosophy:
 
-- The backend runs on port 8080
-- The frontend runs on port 5173
-- JWT tokens expire after 24 hours (configurable in application.properties)
-- API base URL is environment-driven via `VITE_API_BASE_URL` (fallback: `/api`)
-- Health endpoint: `http://localhost:8080/actuator/health`
+- **No cards** — tasks are separated by thin `1px solid #ebedf0` dividers
+- **System fonts** — `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto` stack
+- **Accent color** — `#2e80f2` (Things 3 blue) for interactive elements
+- **Typography** — 14px base, 26px heading, weight 600 for titles
+- **Animations** — 150ms transitions, no dramatic effects
+- **Max width** — 680px centered content column
+
+## Notes
+
+- Data is stored in H2 in-memory database and resets on server restart
+- The frontend proxies `/api` requests to `http://localhost:8080` via Vite dev server
+- CORS is configured for `http://localhost:5173` and `http://127.0.0.1:5173`

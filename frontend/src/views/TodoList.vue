@@ -4,18 +4,29 @@
     <v-navigation-drawer
       permanent
       :width="260"
-      color="grey-lighten-4"
+      color="grey-lighten-5" flat border
       class="sidebar"
     >
       <div class="pa-4">
         <h1 class="text-h5 font-weight-bold text-primary">Todo</h1>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-email"
+            @click="openEmailDialog"
+            class="text-none"
+            size="small"
+          >
+            Email List
+          </v-btn>
       </div>
 
       <v-list nav class="px-2">
         <v-list-item
           :active="activeList === 'myday'"
           @click="selectList('myday')"
-          rounded="lg"
+          rounded="xl"
           class="mb-1"
         >
           <template v-slot:prepend>
@@ -30,7 +41,7 @@
         <v-list-item
           :active="activeList === 'important'"
           @click="selectList('important')"
-          rounded="lg"
+          rounded="xl"
           class="mb-1"
         >
           <template v-slot:prepend>
@@ -45,7 +56,7 @@
         <v-list-item
           :active="activeList === 'all'"
           @click="selectList('all')"
-          rounded="lg"
+          rounded="xl"
           class="mb-1"
         >
           <template v-slot:prepend>
@@ -81,7 +92,7 @@
           <v-col cols="12" md="4">
             <v-btn
               color="primary"
-              size="large"
+              height="48"
               variant="outlined"
               block
               prepend-icon="mdi-plus"
@@ -116,7 +127,7 @@
             :key="todo.id"
             :class="['task-item', { 'focused': focusedId === todo.id, 'completed': todo.completed }]"
             @click="openDetail(todo)"
-            rounded="lg"
+            rounded="xl"
             class="mb-1"
           >
             <template v-slot:prepend>
@@ -135,8 +146,16 @@
 
             <template v-slot:append>
               <v-btn
+                icon="mdi-weather-sunny"
+                :color="todo.myDay ? 'blue' : 'grey-lighten-2'"
+                variant="text"
+                size="small"
+                class="mr-1"
+                @click.stop="toggleMyDay(todo)"
+              />
+              <v-btn
                 icon="mdi-star"
-                :color="todo.important ? 'amber-darken-2' : 'grey-lighten-1'"
+                :color="todo.important ? 'amber-darken-2' : 'grey-lighten-2'"
                 variant="text"
                 size="small"
                 @click.stop="toggleImportant(todo)"
@@ -146,8 +165,8 @@
         </v-list>
 
         <!-- Completed Section -->
-        <v-expansion-panels class="mt-4" v-if="completedTodos.length > 0">
-          <v-expansion-panel>
+        <v-expansion-panels class="mt-4 elevation-0" flat variant="accordion" v-if="completedTodos.length > 0">
+          <v-expansion-panel elevation="0" class="border rounded-xl">
             <v-expansion-panel-title>
               <v-icon class="mr-2">mdi-check-circle</v-icon>
               Completed ({{ completedTodos.length }})
@@ -160,11 +179,42 @@
                   class="completed"
                 >
                   <template v-slot:prepend>
-                    <v-icon color="success">mdi-checkbox-marked-circle</v-icon>
+                    <v-btn
+                      icon="mdi-checkbox-marked-circle"
+                      color="success"
+                      variant="text"
+                      size="small"
+                      @click.stop="toggleCompleted(t)"
+                    />
                   </template>
                   <v-list-item-title class="text-decoration-line-through text-grey">
                     {{ t.title }}
                   </v-list-item-title>
+                  <template v-slot:append>
+                    <v-btn
+                      icon="mdi-weather-sunny"
+                      :color="t.myDay ? 'blue' : 'grey-lighten-2'"
+                      variant="text"
+                      size="small"
+                      class="mr-1"
+                      @click.stop="toggleMyDay(t)"
+                    />
+                    <v-btn
+                      icon="mdi-star"
+                      :color="t.important ? 'amber-darken-2' : 'grey-lighten-2'"
+                      variant="text"
+                      size="small"
+                      class="mr-1"
+                      @click.stop="toggleImportant(t)"
+                    />
+                    <v-btn
+                      icon="mdi-delete"
+                      color="error"
+                      variant="text"
+                      size="small"
+                      @click.stop="deleteTodo(t.id)"
+                    />
+                  </template>
                 </v-list-item>
               </v-list>
             </v-expansion-panel-text>
@@ -181,7 +231,7 @@
       :width="380"
       class="detail-panel"
     >
-      <v-card flat>
+      <v-card flat class="border" rounded="xl">
         <v-card-title class="d-flex align-center pa-4">
           <v-text-field
             v-model="detail.title"
@@ -256,6 +306,57 @@
         <span><kbd>Esc</kbd> Unfocus</span>
       </div>
     </v-footer>
+
+    <!-- Email Dialog -->
+    <v-dialog v-model="emailDialog" max-width="480">
+      <v-card flat border rounded="xl" class="elevation-0" style="border-color: rgba(0,0,0,0.05) !important;">
+        <v-card-title class="pa-4 bg-grey-lighten-4 d-flex align-center">
+          <v-icon color="primary" class="mr-2">mdi-email</v-icon>
+          Share List via Email
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="pa-5">
+          <p class="text-body-2 text-medium-emphasis mb-4">
+            Send the current task list to an email address.
+          </p>
+          <v-text-field
+            v-model="emailAddress"
+            label="Email address"
+            placeholder="recipient@example.com"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            prepend-inner-icon="mdi-email-outline"
+            @keyup.enter="sendEmail"
+            :error="emailError"
+          ></v-text-field>
+          <v-expand-transition>
+            <div v-if="emailError" class="text-caption text-error mt-2">
+              Please enter a valid email address.
+            </div>
+          </v-expand-transition>
+        </v-card-text>
+        <v-card-actions class="px-5 pb-5">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" color="grey-darken-1" @click="closeEmailDialog" :disabled="sending">Cancel</v-btn>
+          <v-btn color="primary" variant="flat" @click="sendEmail" :loading="sending" class="px-6">Send</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Global Snackbar -->
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      :timeout="snackbar.timeout"
+      location="bottom center"
+    >
+      {{ snackbar.message }}
+      <template v-slot:actions>
+        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+      </template>
+    </v-snackbar>
+
   </v-app>
 </template>
 
@@ -266,6 +367,55 @@ import { todoService } from '@/services/todoService'
 // State
 const todos = ref([])
 const activeList = ref('all')
+
+// Email share dialog state
+const emailDialog = ref(false)
+const emailAddress = ref('')
+const emailError = ref(false)
+const sending = ref(false)
+
+// Snackbar
+const snackbar = reactive({ show: false, message: '', color: 'success', timeout: 3000 })
+
+function openEmailDialog() {
+  emailAddress.value = ''
+  emailError.value = false
+  emailDialog.value = true
+}
+
+function closeEmailDialog() {
+  emailDialog.value = false
+}
+
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return re.test(email)
+}
+
+async function sendEmail() {
+  if (!validateEmail(emailAddress.value)) {
+    emailError.value = true
+    return
+  }
+  emailError.value = false
+  sending.value = true
+  try {
+    await todoService.sendEmail(emailAddress.value)
+    snackbar.message = 'Email sent successfully.'
+    snackbar.color = 'success'
+    snackbar.show = true
+    emailDialog.value = false
+  } catch (err) {
+    console.error('sendEmail', err)
+    snackbar.message = err?.response?.data?.message || 'Failed to send email.'
+    snackbar.color = 'error'
+    snackbar.show = true
+  } finally {
+    sending.value = false
+  }
+}
+
+
 const counts = reactive({ myDay: 0, important: 0, all: 0 })
 const search = ref('')
 const newTitle = ref('')
@@ -339,6 +489,22 @@ async function toggleImportant(todo) {
     await loadTodos()
   } catch (e) { console.error(e) }
 }
+
+async function toggleMyDay(todo) {
+  try {
+    await todoService.toggleMyDay(todo.id)
+    await loadTodos()
+  } catch (e) { console.error(e) }
+}
+
+async function deleteTodo(id) {
+  try {
+    await todoService.delete(id)
+    if (detail.id === id) closeDetail()
+    await loadTodos()
+  } catch (e) { console.error(e) }
+}
+
 
 function openDetail(todo) {
   detail.id = todo.id
@@ -477,7 +643,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: none;
-  border-radius: 8px;
+  border-radius: 16px;
   color: #1976D2;
   transition: all 0.2s ease;
 }
@@ -489,24 +655,25 @@ onBeforeUnmount(() => {
 
 .task-item {
   transition: all 0.2s ease;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  margin-bottom: 8px;
 }
 
 .task-item:hover {
-  background-color: rgba(0, 0, 0, 0.03);
-  box-shadow: 0 2px 8px rgba(25, 90, 189, 0.08);
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
 .task-item.focused {
-  background-color: rgba(25, 90, 189, 0.08);
-  border-color: rgba(25, 90, 189, 0.3);
-  box-shadow: 0 4px 16px rgba(25, 90, 189, 0.15);
+  background-color: rgba(25, 118, 210, 0.04);
+  border-color: rgba(25, 118, 210, 0.3);
+  box-shadow: 0 4px 20px rgba(25, 118, 210, 0.08);
 }
 
 .detail-panel {
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
+  border-left: 1px solid rgba(0, 0, 0, 0.05); box-shadow: none;
 }
 
 .hints-bar {
@@ -554,7 +721,7 @@ onBeforeUnmount(() => {
 :deep(.search-input.v-text-field--focused .v-field),
 :deep(.new-input.v-text-field--focused .v-field) {
   box-shadow: 0 4px 12px rgba(25, 90, 189, 0.15);
-  border-radius: 8px;
+  border-radius: 16px;
 }
 
 :deep(.search-input:hover .v-field),
